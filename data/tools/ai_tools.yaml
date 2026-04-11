@@ -1,0 +1,259 @@
+- name: ChatGPT
+  domain: chat.openai.com
+  vendor: OpenAI
+  category: LLM
+  risk_score: 7.5
+  risk_level: HIGH
+  data_classification: CONFIDENTIAL
+  data_leaves_org: true
+  trains_on_data: false
+  gdpr_relevant: "YES"
+  sso_available: true
+  notes: "Enterprise tier has data privacy controls. Free/Plus tiers may use data for training."
+
+- name: OpenAI API
+  domain: api.openai.com
+  vendor: OpenAI
+  category: LLM API
+  risk_score: 6.5
+  risk_level: HIGH
+  data_classification: CONFIDENTIAL
+  data_leaves_org: true
+  trains_on_data: false
+  gdpr_relevant: "YES"
+  sso_available: false
+  notes: "API terms opt out of training by default. Data processed in US."
+
+- name: GitHub Copilot
+  domain: copilot.github.com
+  vendor: GitHub / Microsoft
+  category: Code Assistant
+  risk_score: 5.5
+  risk_level: MEDIUM
+  data_classification: INTERNAL
+  data_leaves_org: true
+  trains_on_data: false
+  gdpr_relevant: "YES"
+  sso_available: true
+  notes: "Business tier does not use code for training. Individual tier may."
+
+- name: Microsoft Copilot
+  domain: copilot.microsoft.com
+  vendor: Microsoft
+  category: LLM
+  risk_score: 3.5
+  risk_level: LOW
+  data_classification: INTERNAL
+  data_leaves_org: false
+  trains_on_data: false
+  gdpr_relevant: "YES"
+  sso_available: true
+  notes: "M365 Copilot stays within tenant boundary. Strong data residency controls."
+
+- name: Google Gemini
+  domain: gemini.google.com
+  vendor: Google
+  category: LLM
+  risk_score: 7.0
+  risk_level: HIGH
+  data_classification: CONFIDENTIAL
+  data_leaves_org: true
+  trains_on_data: true
+  gdpr_relevant: "YES"
+  sso_available: true
+  notes: "Workspace Enterprise has admin controls. Consumer accounts may use data for training."
+
+- name: Claude (Anthropic)
+  domain: claude.ai
+  vendor: Anthropic
+  category: LLM
+  risk_score: 6.0
+  risk_level: MEDIUM
+  data_classification: CONFIDENTIAL
+  data_leaves_org: true
+  trains_on_data: false
+  gdpr_relevant: "YES"
+  sso_available: true
+  notes: "Claude.ai Pro/Team does not train on conversations by default."
+
+- name: Anthropic API
+  domain: api.anthropic.com
+  vendor: Anthropic
+  category: LLM API
+  risk_score: 5.0
+  risk_level: MEDIUM
+  data_classification: INTERNAL
+  data_leaves_org: true
+  trains_on_data: false
+  gdpr_relevant: "YES"
+  sso_available: false
+  notes: "API does not train on prompts. Data retained for 30 days for abuse monitoring."
+
+- name: Grammarly
+  domain: grammarly.com
+  vendor: Grammarly Inc
+  category: Writing Assistant
+  risk_score: 6.5
+  risk_level: HIGH
+  data_classification: CONFIDENTIAL
+  data_leaves_org: true
+  trains_on_data: true
+  gdpr_relevant: "YES"
+  sso_available: true
+  notes: "All typed text is sent to Grammarly servers. Business tier has stricter controls."
+
+- name: Notion AI
+  domain: notion.so
+  vendor: Notion Labs
+  category: Productivity AI
+  risk_score: 5.5
+  risk_level: MEDIUM
+  data_classification: INTERNAL
+  data_leaves_org: true
+  trains_on_data: false
+  gdpr_relevant: "YES"
+  sso_available: true
+  notes: "AI features powered by OpenAI. Notion does not train on workspace content."
+
+- name: Midjourney
+  domain: midjourney.com
+  vendor: Midjourney Inc
+  category: Image Generation
+  risk_score: 5.0
+  risk_level: MEDIUM
+  data_classification: INTERNAL
+  data_leaves_org: true
+  trains_on_data: true
+  gdpr_relevant: "NO"
+  sso_available: false
+  notes: "Prompts and generated images are public by default on free tier. Pro tier adds stealth mode."
+
+- name: Perplexity AI
+  domain: perplexity.ai
+  vendor: Perplexity AI Inc
+  category: Search / LLM
+  risk_score: 6.0
+  risk_level: MEDIUM
+  data_classification: INTERNAL
+  data_leaves_org: true
+  trains_on_data: true
+  gdpr_relevant: "YES"
+  sso_available: false
+  notes: "Queries may be used to improve models. No enterprise data controls on standard tier."
+
+- name: Hugging Face
+  domain: huggingface.co
+  vendor: Hugging Face Inc
+  category: ML Platform
+  risk_score: 5.0
+  risk_level: MEDIUM
+  data_classification: INTERNAL
+  data_leaves_org: true
+  trains_on_data: false
+  gdpr_relevant: "YES"
+  sso_available: true
+  notes: "Inference API sends data to HF servers. Private Spaces available for sensitive workloads."
+
+- name: Jasper AI
+  domain: jasper.ai
+  vendor: Jasper AI Inc
+  category: Writing Assistant
+  risk_score: 6.0
+  risk_level: MEDIUM
+  data_classification: CONFIDENTIAL
+  data_leaves_org: true
+  trains_on_data: false
+  gdpr_relevant: "YES"
+  sso_available: true
+  notes: "Content sent to LLM providers. Business tier has DPA available."
+
+- name: Runway ML
+  domain: runwayml.com
+  vendor: Runway AI Inc
+  category: Video Generation
+  risk_score: 6.5
+  risk_level: HIGH
+  data_classification: CONFIDENTIAL
+  data_leaves_org: true
+  trains_on_data: true
+  gdpr_relevant: "YES"
+  sso_available: false
+  notes: "Uploaded media may be used for model training. Enterprise tier available with controls."
+
+- name: Cursor
+  domain: cursor.sh
+  vendor: Anysphere Inc
+  category: Code Assistant
+  risk_score: 6.0
+  risk_level: MEDIUM
+  data_classification: INTERNAL
+  data_leaves_org: true
+  trains_on_data: false
+  gdpr_relevant: "YES"
+  sso_available: false
+  notes: "Code context sent to AI models. Privacy mode available to disable telemetry."
+
+- name: Codeium
+  domain: codeium.com
+  vendor: Codeium Inc
+  category: Code Assistant
+  risk_score: 5.0
+  risk_level: MEDIUM
+  data_classification: INTERNAL
+  data_leaves_org: true
+  trains_on_data: false
+  gdpr_relevant: "YES"
+  sso_available: true
+  notes: "Enterprise tier keeps data within tenant. Free tier data used for model improvement."
+
+- name: Otter.ai
+  domain: otter.ai
+  vendor: AISense Inc
+  category: Transcription
+  risk_score: 8.0
+  risk_level: HIGH
+  data_classification: HIGHLY_CONFIDENTIAL
+  data_leaves_org: true
+  trains_on_data: true
+  gdpr_relevant: "YES"
+  sso_available: true
+  notes: "Meeting audio and transcripts stored on Otter servers. High risk for confidential meetings."
+
+- name: Fireflies.ai
+  domain: fireflies.ai
+  vendor: Fireflies Inc
+  category: Transcription
+  risk_score: 8.0
+  risk_level: HIGH
+  data_classification: HIGHLY_CONFIDENTIAL
+  data_leaves_org: true
+  trains_on_data: true
+  gdpr_relevant: "YES"
+  sso_available: true
+  notes: "All meeting recordings processed and stored externally. Consider for board/exec meetings."
+
+- name: Character.AI
+  domain: character.ai
+  vendor: Character Technologies
+  category: Consumer LLM
+  risk_score: 9.0
+  risk_level: CRITICAL
+  data_classification: CONFIDENTIAL
+  data_leaves_org: true
+  trains_on_data: true
+  gdpr_relevant: "YES"
+  sso_available: false
+  notes: "Consumer product with no enterprise controls. All conversations used for training. Block on corporate devices."
+
+- name: Stability AI
+  domain: stability.ai
+  vendor: Stability AI Ltd
+  category: Image Generation
+  risk_score: 5.5
+  risk_level: MEDIUM
+  data_classification: INTERNAL
+  data_leaves_org: true
+  trains_on_data: false
+  gdpr_relevant: "YES"
+  sso_available: false
+  notes: "API inputs not used for training per ToS. Self-hosted option available for sensitive use."

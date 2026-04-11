@@ -1,0 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-0: #02040a;
+  --bg-1: #070b12;
+  --bg-2: #0c1220;
+  --bg-3: #111827;
+  --bg-4: #1a2235;
+
+  --line:       #1e2d45;
+  --line-soft:  #162034;
+  --line-bright:#2a3f5f;
+
+  --txt-1: #e2eaf6;
+  --txt-2: #7a92b4;
+  --txt-3: #3d5270;
+  --txt-4: #243044;
+
+  --cyan:   #00c8e0;
+  --cyan-d: rgba(0,200,224,0.08);
+  --cyan-g: rgba(0,200,224,0.18);
+
+  --red:    #f04438;
+  --red-d:  rgba(240,68,56,0.1);
+  --orange: #f97316;
+  --orange-d: rgba(249,115,22,0.1);
+  --yellow: #eab308;
+  --yellow-d: rgba(234,179,8,0.1);
+  --green:  #22c55e;
+  --green-d: rgba(34,197,94,0.1);
+
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'IBM Plex Sans', sans-serif;
+
+  --r1: 3px;
+  --r2: 6px;
+  --r3: 10px;
+
+  --sidebar: 224px;
+}
+
+html, body, #root {
+  height: 100%;
+  background: var(--bg-0);
+  color: var(--txt-1);
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: 0.01em;
+}
+
+/* Thin scrollbars */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--line-bright); border-radius: 2px; }
+
+a { color: inherit; text-decoration: none; }
+button { cursor: pointer; font-family: var(--sans); border: none; background: none; }
+
+/* Utility */
+.mono { font-family: var(--mono); }
+.muted { color: var(--txt-2); }
+.dim   { color: var(--txt-3); }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes blink {
+  0%,100% { opacity: 1; }
+  50%      { opacity: 0; }
+}
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-3) 25%, var(--bg-4) 50%, var(--bg-3) 75%);
+  background-size: 400px 100%;
+  animation: shimmer 1.4s ease infinite;
+  border-radius: var(--r1);
+}
