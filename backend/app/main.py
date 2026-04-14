@@ -11,26 +11,25 @@ sys.path.insert(0, "/app")
 
 from app.db.database import create_tables
 from app.routers import tools, scans, reports, health, scheduler, overrides, triage
+from app.routers.setup import router as setup_router
 from auth.auth_router import router as auth_router
 from auth.auth_deps import require_auth
 from app.services.scheduler_service import start_scheduler, stop_scheduler
-from app.services.retention_service import run_retention
-
-
-# ── Rate limiter ──────────────────────────────────────────────────────────────
-# Key by IP address. Limits:
-#   - Auth endpoints: 10/minute (prevents credential stuffing)
-#   - Scan endpoints: 20/minute (prevents accidental loops)
-#   - General API:    60/minute (normal usage headroom)
 
 limiter = Limiter(key_func=get_remote_address, default_limits=["60/minute"])
+
+
+def _is_setup_complete() -> bool:
+    required = ["AZURE_CLIENT_ID", "AZURE_CLIENT_SECRET", "AZURE_TENANT_ID"]
+    return all(os.getenv(v, "").strip() for v in required)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await create_tables()
-    interval = int(os.getenv("RESCAN_INTERVAL_HOURS", "24"))
-    await start_scheduler(interval_hours=interval)
+    if _is_setup_complete():
+        interval = int(os.getenv("RESCAN_INTERVAL_HOURS", "24"))
+        await start_scheduler(interval_hours=interval)
     yield
     await stop_scheduler()
 
@@ -41,7 +40,6 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Attach rate limiter
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
@@ -56,9 +54,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ── Public routes ─────────────────────────────────────────────────────────────
+# ── Always public ─────────────────────────────────────────────────────────────
 app.include_router(health.router,  tags=["health"])
-app.include_router(auth_router,    prefix="/api/auth", tags=["auth"])
+app.include_router(setup_router,   prefix="/api/setup",  tags=["setup"])
+app.include_router(auth_router,    prefix="/api/auth",   tags=["auth"])
 
 # ── Protected routes ──────────────────────────────────────────────────────────
 _protected = {"dependencies": [Depends(require_auth)]}

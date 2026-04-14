@@ -29,6 +29,7 @@ services:
       - ./data:/data
       - ./backend:/app
       - ./auth:/app/auth
+      - ./.env:/app/host.env
     depends_on:
       db:
         condition: service_healthy
