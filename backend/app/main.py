@@ -1,9 +1,12 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 import os, sys
 
-# Auth module lives at /app/auth (mounted via docker-compose volume)
 sys.path.insert(0, "/app")
 
 from app.db.database import create_tables
@@ -11,6 +14,16 @@ from app.routers import tools, scans, reports, health, scheduler, overrides, tri
 from auth.auth_router import router as auth_router
 from auth.auth_deps import require_auth
 from app.services.scheduler_service import start_scheduler, stop_scheduler
+from app.services.retention_service import run_retention
+
+
+# ── Rate limiter ──────────────────────────────────────────────────────────────
+# Key by IP address. Limits:
+#   - Auth endpoints: 10/minute (prevents credential stuffing)
+#   - Scan endpoints: 20/minute (prevents accidental loops)
+#   - General API:    60/minute (normal usage headroom)
+
+limiter = Limiter(key_func=get_remote_address, default_limits=["60/minute"])
 
 
 @asynccontextmanager
@@ -24,9 +37,13 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="AI Shadow IT Scanner — Argus",
-    version="0.4.0",
+    version="0.5.0",
     lifespan=lifespan,
 )
+
+# Attach rate limiter
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
@@ -39,7 +56,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ── Public routes (no auth) ───────────────────────────────────────────────────
+# ── Public routes ─────────────────────────────────────────────────────────────
 app.include_router(health.router,  tags=["health"])
 app.include_router(auth_router,    prefix="/api/auth", tags=["auth"])
 

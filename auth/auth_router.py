@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import RedirectResponse, JSONResponse
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 import secrets
 import sys
 
@@ -13,6 +15,7 @@ from auth.auth_service import (
 )
 
 router = APIRouter()
+limiter = Limiter(key_func=get_remote_address)
 _pending_states: set[str] = set()
 
 
@@ -25,7 +28,9 @@ async def auth_status():
 
 
 @router.get("/login")
-async def login():
+@limiter.limit("10/minute")
+async def login(request: Request):
+    """Rate limited — prevents credential stuffing."""
     if not is_configured():
         raise HTTPException(status_code=503, detail="Auth not configured")
     state = secrets.token_urlsafe(32)
@@ -34,7 +39,8 @@ async def login():
 
 
 @router.get("/callback")
-async def callback(code: str = None, state: str = None, error: str = None):
+@limiter.limit("10/minute")
+async def callback(request: Request, code: str = None, state: str = None, error: str = None):
     if error:
         return RedirectResponse(f"{FRONTEND_URL}/auth-error?reason={error}")
     if not code or not state:
@@ -51,7 +57,6 @@ async def callback(code: str = None, state: str = None, error: str = None):
         print(f"Token exchange error: {e}")
         return RedirectResponse(f"{FRONTEND_URL}/auth-error?reason=token_exchange_failed")
 
-    # Pass token as query param — frontend reads it, stores in localStorage
     return RedirectResponse(f"{FRONTEND_URL}/auth/success?token={session}")
 
 
