@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import { useState, useEffect } from 'react'
+import { useAuth } from '../context/AuthContext'
 import { api } from '../lib/api'
 
 const NAV = [
@@ -11,6 +12,7 @@ const NAV = [
 ]
 
 export function Sidebar() {
+  const { user, logout } = useAuth()
   const [alive, setAlive]     = useState(null)
   const [summary, setSummary] = useState(null)
   const [pending, setPending] = useState(0)
@@ -20,6 +22,10 @@ export function Sidebar() {
     api.toolSummary().then(setSummary).catch(() => {})
     api.triageCount().then(d => setPending(d.pending ?? 0)).catch(() => {})
   }, [])
+
+  const initials = user?.name
+    ? user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
+    : '??'
 
   return (
     <aside style={{
@@ -41,14 +47,14 @@ export function Sidebar() {
         </svg>
         <div>
           <div style={{ fontFamily: 'var(--mono)', fontWeight: 600, fontSize: 14, color: 'var(--txt-1)', letterSpacing: '0.12em' }}>ARGUS</div>
-          <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--txt-3)', letterSpacing: '0.1em' }}>AI SHADOW IT v0.3</div>
+          <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--txt-3)', letterSpacing: '0.1em' }}>AI SHADOW IT v0.4</div>
         </div>
       </div>
 
       {/* Risk bar */}
-      {summary && summary.total > 0 && (
+      {summary?.total > 0 && (
         <>
-          <div style={{ margin: '12px 14px 0', borderRadius: 'var(--r1)', overflow: 'hidden', height: 3, background: 'var(--bg-3)', display: 'flex' }}>
+          <div style={{ margin: '12px 14px 0', borderRadius: 2, overflow: 'hidden', height: 3, background: 'var(--bg-3)', display: 'flex' }}>
             {[
               { count: summary.critical, color: 'var(--red)' },
               { count: summary.high,     color: 'var(--orange)' },
@@ -90,41 +96,66 @@ export function Sidebar() {
             <span style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
               {label}
               {badge && pending > 0 && (
-                <span style={{
-                  background: 'var(--yellow)', color: 'var(--bg-0)',
-                  borderRadius: 10, padding: '1px 6px',
-                  fontSize: 9, fontWeight: 700, lineHeight: 1.4,
-                }}>
+                <span style={{ background: 'var(--yellow)', color: 'var(--bg-0)', borderRadius: 10, padding: '1px 6px', fontSize: 9, fontWeight: 700 }}>
                   {pending}
                 </span>
               )}
             </span>
-            <span style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--txt-4)', letterSpacing: '0.08em' }}>{abbr}</span>
+            <span style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--txt-4)' }}>{abbr}</span>
           </NavLink>
         ))}
       </nav>
 
-      {/* Footer */}
-      <div style={{ padding: '12px 14px', borderTop: '1px solid var(--line)', display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--txt-3)' }}>API STATUS</span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: alive === null ? 'var(--txt-4)' : alive ? 'var(--green)' : 'var(--red)', boxShadow: alive ? '0 0 6px var(--green)' : 'none', display: 'inline-block' }} />
-            <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: alive ? 'var(--green)' : 'var(--txt-3)' }}>
-              {alive === null ? 'CHECKING' : alive ? 'ONLINE' : 'OFFLINE'}
-            </span>
-          </div>
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--txt-3)' }}>TOOLS FOUND</span>
-          <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--txt-2)' }}>{summary?.total ?? '—'}</span>
-        </div>
-        {pending > 0 && (
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--txt-3)' }}>TRIAGE PENDING</span>
-            <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--yellow)' }}>{pending}</span>
+      {/* User + status footer */}
+      <div style={{ borderTop: '1px solid var(--line)' }}>
+        {user && (
+          <div style={{ padding: '12px 14px', borderBottom: '1px solid var(--line-soft)', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{
+              width: 28, height: 28, borderRadius: '50%',
+              background: 'var(--cyan-d)', border: '1px solid var(--cyan)33',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--cyan)', flexShrink: 0,
+            }}>
+              {initials}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 12, fontWeight: 500, color: 'var(--txt-1)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {user.name || user.email}
+              </div>
+              {user.dev && (
+                <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--yellow)' }}>DEV MODE</div>
+              )}
+              {user.provider && !user.dev && (
+                <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--txt-4)', textTransform: 'uppercase' }}>{user.provider}</div>
+              )}
+            </div>
+            <button onClick={logout} title="Sign out" style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: 'var(--txt-4)', fontSize: 14, padding: '2px 4px',
+              borderRadius: 4, transition: 'color 0.1s',
+            }}
+              onMouseEnter={e => e.currentTarget.style.color = 'var(--txt-2)'}
+              onMouseLeave={e => e.currentTarget.style.color = 'var(--txt-4)'}
+            >⏏</button>
           </div>
         )}
+        <div style={{ padding: '10px 14px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--txt-3)' }}>API STATUS</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: alive === null ? 'var(--txt-4)' : alive ? 'var(--green)' : 'var(--red)', display: 'inline-block' }} />
+              <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: alive ? 'var(--green)' : 'var(--txt-3)' }}>
+                {alive === null ? 'CHECKING' : alive ? 'ONLINE' : 'OFFLINE'}
+              </span>
+            </div>
+          </div>
+          {pending > 0 && (
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--txt-3)' }}>TRIAGE PENDING</span>
+              <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--yellow)' }}>{pending}</span>
+            </div>
+          )}
+        </div>
       </div>
     </aside>
   )

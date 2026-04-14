@@ -20,6 +20,7 @@ services:
     build:
       context: ./backend
     restart: unless-stopped
+    env_file: .env
     environment:
       DATABASE_URL: postgresql+asyncpg://postgres:postgres@db:5432/ai_scanner
     ports:
@@ -27,6 +28,7 @@ services:
     volumes:
       - ./data:/data
       - ./backend:/app
+      - ./auth:/app/auth
     depends_on:
       db:
         condition: service_healthy

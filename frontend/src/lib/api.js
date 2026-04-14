@@ -1,12 +1,33 @@
 const BASE = '/api'
+const TOKEN_KEY = 'argus_session'
+
+function getToken() {
+  return localStorage.getItem(TOKEN_KEY)
+}
 
 async function req(path, opts = {}) {
-  const r = await fetch(`${BASE}${path}`, opts)
+  const token = getToken()
+  const headers = { ...opts.headers }
+  if (token) headers['Authorization'] = `Bearer ${token}`
+
+  const r = await fetch(`${BASE}${path}`, { ...opts, headers })
+
+  if (r.status === 401) {
+    localStorage.removeItem(TOKEN_KEY)
+    window.location.href = '/'
+    throw new Error('Session expired')
+  }
+
   if (!r.ok) throw new Error(`${r.status} ${r.statusText}`)
   return r.json()
 }
 
 export const api = {
+  // Auth
+  authStatus:  () => fetch('/api/auth/status').then(r => r.json()),
+  authMe:      () => req('/auth/me'),
+  authLogout:  () => req('/auth/logout', { method: 'POST' }),
+
   // Core
   health:        () => fetch('/health').then(r => r.json()),
   tools:         () => req('/tools/'),
@@ -16,8 +37,18 @@ export const api = {
 
   // Ingestion
   uploadDnsCsv: (file) => {
-    const f = new FormData(); f.append('file', file)
-    return req('/scans/dns-csv', { method: 'POST', body: f })
+    const form = new FormData()
+    form.append('file', file)
+    const token = getToken()
+    return fetch(`${BASE}/scans/dns-csv`, {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: form,
+    }).then(r => {
+      if (r.status === 401) { localStorage.removeItem(TOKEN_KEY); window.location.href = '/'; }
+      if (!r.ok) throw new Error(`${r.status}`)
+      return r.json()
+    })
   },
   pasteDomains: (domains) =>
     req('/scans/paste', {
